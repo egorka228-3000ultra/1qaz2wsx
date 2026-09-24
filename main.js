@@ -1,8 +1,10 @@
 import { createClient } from '@supabase/supabase-js';
 import './style.css';
 
-const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
-const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || 'https://xurbnozhuhqibmfbmhdu.supabase.co';
+const supabaseKey = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY
+  || 'sb_publishable_BkAmMgvHRBghFracvJkZJA_s-KpIZkG';
+
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 const days = [
@@ -119,7 +121,13 @@ async function showNow() {
     return;
   }
   addMessage('<span class="message-label">/now</span>', 'user');
-  const lessons = await getLessons(new Date().getDay() || 7);
+  let lessons;
+  try {
+    lessons = await getLessons(new Date().getDay() || 7);
+  } catch (error) {
+    addMessage(`<b>Не удалось загрузить расписание.</b><p>${escapeHtml(error.message)}</p>`);
+    return;
+  }
   const current = new Date();
   const currentMinutes = current.getHours() * 60 + current.getMinutes();
   const active = lessons.find((lesson) => {
